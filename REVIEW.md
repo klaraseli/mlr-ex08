@@ -14,7 +14,7 @@
 ### Probability Comparison Table
 
 | Class Name | Web App Probability (`check_image.jpg`) [%] | Expected Probability (`check_expected.json`) [%] | Matches to 3 Decimals? (Y/N) |
-| :--- | :---: | :---: | :---: | :---: |
+| :--- | :---: | :---: | :---: |
 | [apple] | 2.27e-04 | 2.27e-04 | [Yes] |
 | [cherry] | 99.998 | 99.998 | [Yes] |
 | [chestnut] | 8.57e-04 | 8.57e-04 | [Yes] |
