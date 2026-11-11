@@ -7,75 +7,51 @@
 
 ---
 
-## 2. Notebook Parity & Numerical Accuracy Check
+## 2. The same numbers as the notebook
 
-> **Requirement:** Upload `check_image.jpg` on the web app and compare output probabilities against `check_expected.json`. Must match to 3 decimal places ($|p_{\text{app}} - p_{\text{notebook}}| \le 0.001$).
+> **Requirement:**  Upload check_image.jpg on the page and write its probabilities next to check_expected.json. Do they agree to three decimals?
 
 ### Probability Comparison Table
 
-| Class Name | Web App Probability (`check_image.jpg`) | Expected Probability (`check_expected.json`) | Absolute Difference | Matches to 3 Decimals? (Y/N) |
+| Class Name | Web App Probability (`check_image.jpg`) [%] | Expected Probability (`check_expected.json`) [%] | Matches to 3 Decimals? (Y/N) |
 | :--- | :---: | :---: | :---: | :---: |
-| [Class 1] | 0.XXX | 0.XXX | 0.000 | [Y/N] |
-| [Class 2] | 0.XXX | 0.XXX | 0.000 | [Y/N] |
-| [Class 3] | 0.XXX | 0.XXX | 0.000 | [Y/N] |
-| [Class 4] | 0.XXX | 0.XXX | 0.000 | [Y/N] |
-| [Class 5] | 0.XXX | 0.XXX | 0.000 | [Y/N] |
-
-**Verdict:** [ ] PASS (All classes match to 3 decimal places)  |  [ ] FAIL
+| [apple] | 2.27e-04 | 2.27e-04 | [Yes] |
+| [cherry] | 99.998 | 99.998 | [Yes] |
+| [chestnut] | 8.57e-04 | 8.57e-04 | [Yes] |
+| [maple] | 1.42e-04 | 1.42e-04 | [Yes] |
 
 ---
 
-## 3. Preprocessing Verification
+## 3. The preprocessing matches your model
 
-> **Requirement:** Verify in `index.html` (or associated JS scripts) that image preprocessing matches `model_info.json` and the notebook transform pipeline.
+> **Requirement:** Find in index.html where the frame is cropped, resized to 96 × 96, divided by 255 and standardized with the mean and std, and in which order the channels go into the tensor. Does it match model_info.json and the transform of the notebook?
 
-### Preprocessing Checklist & Code Locations
+* In function `infer()` in `index.html` (lines `2686` to `2719`), the images is firstly resized to exactly 96x96 pixels (dimension from `model_info.json`). Afterwards, the color values are divided by 255 to scale to 0.0-1.0, subtracts the color meand and divides by the color standard deviation. The channels go in the order `Red -> Green -> Blue`.
 
-* **Cropping / Aspect Ratio Handling:**
-  * **Location in Code:** `[index.html / script.js line XX]`
-  * **Implementation Note:** `[e.g., Center cropped / scaled to square]`
-
-* **Resizing (96 × 96):**
-  * **Location in Code:** `[index.html / script.js line XX]`
-  * **Verified Target Resolution:** 96 × 96 px
-
-* **Normalization ($\div 255$):**
-  * **Location in Code:** `[index.html / script.js line XX]`
-  * **Values Scaled:** Pixel range $[0, 255] \rightarrow [0.0, 1.0]$
-
-* **Standardization (Mean & Std):**
-  * **Location in Code:** `[index.html / script.js line XX]`
-  * **Mean Used:** `[R, G, B]` (Matches `model_info.json`: [ ] Yes | [ ] No)
-  * **Std Used:** `[R, G, B]` (Matches `model_info.json`: [ ] Yes | [ ] No)
-
-* **Tensor Layout / Channel Order:**
-  * **Location in Code:** `[index.html / script.js line XX]`
-  * **Format:** `[e.g., NCHW or NHWC / RGB order]` (Matches notebook transform: [ ] Yes | [ ] No)
-
-**Verdict:** [ ] PASS (Preprocessing pipeline strictly matches notebook configuration)  |  [ ] FAIL
+* Preprocessing pipeline strictly matches notebook configuration.
 
 ---
 
-## 4. Privacy & Network Traffic Check
+## 4. Nothing leaves the phone
 
-> **Requirement:** Verify that no camera frames or uploaded images leave the local phone environment.
+> **Requirement:** Is the image sent anywhere? Which URLs does the page load, and why?
 
-### External Network Requests
+* No. All image cropping, tensor formatting, and ONNX inference (`session.run`) execute entirely client-side within the browser using local memory.
 
-* **Network Inspection Method:** [e.g., Chrome DevTools Network Tab / Safari Web Inspector]
-* **Total Remote External Requests Made:** `[Count]`
+* Upon loading `index.html`, the network tab shows the following requests:
 
-#### Loaded Resources List:
-1. **URL:** `[URL 1]`
-   * **Purpose:** `[e.g., Main application markup / index.html]`
-2. **URL:** `[URL 2]`
-   * **Purpose:** `[e.g., ONNX Runtime Web library CDN]`
-3. **URL:** `[URL 3]`
-   * **Purpose:** `[e.g., Quantized model weights / model.onnx]`
+1. **ONNX Runtime Web Library:**
+   * **URL:** `[https://cdn.jsdelivr.net/npm/onnxruntime-web/dist/ort.min.js](https://cdn.jsdelivr.net/npm/onnxruntime-web@1.22.0/dist/ort.min.js)`
+   * **Why it loads:** Required to run the AI model locally in the browser.
 
-### Data Leak Verification
+2. **Model Configuration:**
+   * **URL:** `./model_info.json` (Local fetch)
+   * **Why it loads:** Provides the mean/std parameters, image size, and class labels required to preprocess the image and translate the output.
 
-* **Images/Frames Sent via POST/FETCH/XHR:** [ ] NONE  |  [ ] DETECTED (Fail)
+3. **ONNX Model Weights:**
+   * **URL:** `./leaf_model.onnx` (Local fetch)
+   * **Why it loads:** This is the actual neural network file that performs the prediction.
+
 * **Telemetric Data Sent Externally:** [ ] NONE  |  [ ] DETECTED (Fail)
 
 **Verdict:** [ ] PASS (All processing is strictly client-side; zero image data leaves the device)  |  [ ] FAIL
