@@ -3,34 +3,36 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0e1512">
+<meta name="theme-color" content="#f5f1ff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="description" content="Live leaf classifier running entirely in your browser with ONNX Runtime Web.">
 <title>Leaf classifier</title>
 <style>
   :root {
-    --bg: #0e1512;
-    --card: #16201c;
-    --line: #283830;
-    --text: #e8f2ec;
-    --muted: #98ac9f;
-    --accent: #7ee787;
-    --accent-2: #3fb950;
-    --danger: #ff8a80;
+    --bg: #f5f1ff;
+    --card: #ffffff;
+    --line: #e4dcf7;
+    --text: #2b2140;
+    --muted: #6f6389;
+    --accent: #8b6cff;
+    --accent-2: #6842e0;
+    --danger: #b4233a;
+    color-scheme: light;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
   html, body { margin: 0; padding: 0; }
   body {
     background:
-      radial-gradient(900px 420px at 50% -120px, rgba(63, 185, 80, .18), transparent 70%),
-      var(--bg);
+      radial-gradient(900px 420px at 50% -120px, rgba(139, 108, 255, .24), transparent 70%),
+      linear-gradient(180deg, #f8f4ff 0%, #f2ecff 55%, #ece3ff 100%);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.45;
     -webkit-text-size-adjust: 100%;
     min-height: 100vh;
+    background-attachment: fixed;
   }
   main {
     max-width: 560px;
@@ -45,7 +47,7 @@
     margin: 0 0 4px;
     letter-spacing: -.02em;
   }
-  h1 .leaf { color: var(--accent); }
+  h1 .leaf { color: var(--accent-2); }
   .sub { margin: 0; color: var(--muted); font-size: .95rem; }
   .card {
     background: var(--card);
@@ -58,10 +60,10 @@
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    background: #050a07;
+    background: #1c1530;
     border-radius: 12px;
     overflow: hidden;
-    border: 1px solid #1e2c25;
+    border: 1px solid #d9cef4;
   }
   .stage video, .stage #preview {
     position: absolute;
@@ -81,7 +83,7 @@
     justify-content: center;
     text-align: center;
     padding: 24px;
-    color: var(--muted);
+    color: #cfc3ec;
     font-size: .9rem;
   }
   .stage-hint[hidden] { display: none; }
@@ -101,7 +103,7 @@
     padding: 0 16px;
     border-radius: 12px;
     border: 1px solid var(--line);
-    background: #1c2a23;
+    background: #f7f3ff;
     color: var(--text);
     font: inherit;
     font-size: .95rem;
@@ -113,10 +115,11 @@
   button:active, .file-btn:active { transform: translateY(1px); }
   button:disabled { opacity: .45; cursor: default; }
   button.primary {
-    background: linear-gradient(180deg, var(--accent), var(--accent-2));
+    background: linear-gradient(180deg, #9b7bff, var(--accent-2));
     border-color: transparent;
-    color: #08200f;
+    color: #ffffff;
     flex: 1 1 100%;
+    box-shadow: 0 6px 16px rgba(104, 66, 224, .28);
   }
   button.secondary { flex: 1 1 auto; }
   .file-btn { flex: 1 1 auto; position: relative; overflow: hidden; }
@@ -149,7 +152,7 @@
     text-transform: uppercase;
     font-weight: 700;
   }
-  #topClass { font-size: 1.35rem; line-height: 1.1; color: var(--accent); }
+  #topClass { font-size: 1.35rem; line-height: 1.1; color: #5b3df0; }
   #topProb { margin-left: auto; font-variant-numeric: tabular-nums; font-weight: 700; }
   .prob-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 9px; }
   .prob-row { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; }
@@ -158,7 +161,7 @@
   .prob-row .bar {
     grid-column: 1 / -1;
     height: 8px;
-    background: #0a120e;
+    background: #eee8fb;
     border-radius: 99px;
     overflow: hidden;
   }
@@ -167,10 +170,10 @@
     height: 100%;
     width: 0;
     border-radius: 99px;
-    background: linear-gradient(90deg, #2f8f47, var(--accent));
+    background: linear-gradient(90deg, #b9a3ff, #7a54f0);
     transition: width .12s linear;
   }
-  .prob-row.top .cls, .prob-row.top .pct { color: var(--accent); }
+  .prob-row.top .cls, .prob-row.top .pct { color: #5b3df0; }
   .meta { margin: 11px 2px 0; font-size: .74rem; color: var(--muted); }
   .test-card h2, .qr-text h2 { font-size: 1rem; margin: 0 0 6px; }
   .test-card p { margin: 0 0 10px; color: var(--muted); font-size: .86rem; }
@@ -184,7 +187,7 @@
     white-space: nowrap;
   }
   .test-result th { color: var(--muted); font-weight: 600; }
-  .test-result .ok { color: var(--accent); font-weight: 700; }
+  .test-result .ok { color: #5b3df0; font-weight: 700; }
   .test-result .fail { color: var(--danger); font-weight: 700; }
   .privacy {
     max-width: 560px;
@@ -201,12 +204,13 @@
     padding: 16px;
     border-radius: 18px;
     background: #ffffff;
-    color: #0d1512;
+    color: #2b2140;
+    border: 1px solid var(--line);
     display: grid;
     grid-template-columns: 150px 1fr;
     gap: 16px;
     align-items: center;
-    box-shadow: 0 12px 34px rgba(0, 0, 0, .3);
+    box-shadow: 0 12px 34px rgba(76, 45, 140, .18);
   }
   .qr-box { background: #fff; border-radius: 6px; overflow: hidden; }
   .qr-box svg { display: block; width: 100%; height: auto; }
@@ -217,16 +221,16 @@
     letter-spacing: .06em;
     text-transform: uppercase;
     font-weight: 700;
-    color: #4d5f56;
+    color: #6f6389;
   }
   .qr-text a {
-    color: #0b5f2d;
+    color: #5b3df0;
     font-weight: 700;
     font-size: .9rem;
     text-decoration: underline;
     word-break: break-all;
   }
-  .qr-note { margin: 8px 0 0; font-size: .74rem; color: #4d5f56; }
+  .qr-note { margin: 8px 0 0; font-size: .74rem; color: #6f6389; }
   footer.page-footer {
     max-width: 560px;
     margin: 18px auto 0;
